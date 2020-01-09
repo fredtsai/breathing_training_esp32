@@ -1,24 +1,3 @@
-/*
-    Video: https://www.youtube.com/watch?v=oCMOYS71NIU
-    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
-    Ported to Arduino ESP32 by Evandro Copercini
-    updated by chegewara
-
-   Create a BLE server that, once we receive a connection, will send periodic notifications.
-   The service advertises itself as: 4fafc201-1fb5-459e-8fcc-c5c9c331914b
-   And has a characteristic of: beb5483e-36e1-4688-b7f5-ea07361b26a8
-
-   The design of creating the BLE server is:
-   1. Create a BLE Server
-   2. Create a BLE Service
-   3. Create a BLE Characteristic on the Service
-   4. Create a BLE Descriptor on the characteristic
-   5. Start the service.
-   6. Start advertising.
-
-   A connect hander associated with the server starts a background task that performs notification
-   every couple of seconds.
-*/
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -33,15 +12,8 @@ const int potPin = 34;
 int adcValue = 0;
 using namespace std;
 
-// See the following for generating UUIDs:
-// https://www.uuidgenerator.net/
-
 #define SERVICE_UUID        "0000ffe0-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_UUID "0000ffe1-0000-1000-8000-00805f9b34fb"
-
-//#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-//#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -59,8 +31,7 @@ class MyCallBack: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string rxValue = pCharacteristic->getValue();
       if ((rxValue.length() > 0) && (rxValue.find ('&') == std::string::npos)) {
-          std::cout << rxValue << "\n";
-          Serial.printf("*** Receive data: %d ***\n", atoi(rxValue));
+          Serial.printf("*** Receive data: %d ***\n", rxValue[0]);
       }
     }
 
@@ -91,7 +62,6 @@ void setup() {
                     );
   pCharacteristic->setCallbacks(new MyCallBack());
   
-  // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml
   // Create a BLE Descriptor
   pCharacteristic->addDescriptor(new BLE2902());
 
@@ -112,9 +82,11 @@ void loop() {
     if (deviceConnected) {
         adcValue = analogRead(potPin);
         Serial.printf("*** ADC GPIO34: %d ***\n", adcValue);
-        pCharacteristic->setValue(adcValue);
+        std::string str = "20191116 2014 4096";
+        pCharacteristic->setValue(str);
+        //pCharacteristic->setValue(adcValue);
         pCharacteristic->notify();
-        delay(500); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+        delay(500); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 500ms
     }
     // disconnecting
     if (!deviceConnected && oldDeviceConnected) {
