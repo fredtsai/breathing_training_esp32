@@ -3,6 +3,7 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <iostream>
+#include <sstream>
 
 BLEServer* pServer = NULL;
 BLECharacteristic* pCharacteristic = NULL;
@@ -77,12 +78,22 @@ void setup() {
   Serial.println("Waiting a client connection to notify...");
 }
 
+
 void loop() {
     // notify changed value
     if (deviceConnected) {
         adcValue = analogRead(potPin);
         Serial.printf("*** ADC GPIO34: %d ***\n", adcValue);
-        std::string str = "20191116 2014 4096";
+
+        std::ostringstream adcValue_str;
+        adcValue_str << adcValue;
+        std::string converted(adcValue_str.str());
+        
+        std::string str1 = "20201116 2014 ";
+        std::string str2 = adcValue_str.str();
+        std::string space = " ";
+        std::string str = str1 + str2 + space;
+        
         pCharacteristic->setValue(str);
         //pCharacteristic->setValue(adcValue);
         pCharacteristic->notify();
