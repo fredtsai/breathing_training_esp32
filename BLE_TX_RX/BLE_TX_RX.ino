@@ -93,29 +93,29 @@ void loop() {
         std::string str2 = adcValue_str.str();
         std::string str = str1 + str2;
         */
-        char a[8];
+        char a[2];
+        /*
         a[0] = 20 + 1;
         a[1] = 20 + 1; //year 2020
         a[2] = 01 + 1;
         a[3] = 12 + 1; //date 0112
         a[4] = 21 + 1;
         a[5] = 31 + 1; //time 21:31
-
-        
-        a[6] = (adcValue >> 8) + 1;
-        if(adcValue & 0x00ff == 0xff){
-          a[7] = 0xff; //pressure
+        */
+        a[0] = (adcValue >> 8) + 1;
+        if((adcValue & 0x00ff) == 0xff){
+          a[1] = 0xff; //pressure
         }
         else {
-          a[7] = (adcValue & 0x00ff) + 1; //pressure
+          a[1] = (adcValue & 0x00ff) + 1; //pressure
         }
         
-        Serial.printf("***  %x  %x***\n", a[6], a[7]);
-        
+        Serial.printf("***  %x  %x***\n", a[0], a[1]);
+
         pCharacteristic->setValue(a);
         //pCharacteristic->setValue(adcValue);
         pCharacteristic->notify();
-        delay(500); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 500ms
+        delay(50); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 500ms
     }
     // disconnecting
     if (!deviceConnected && oldDeviceConnected) {
