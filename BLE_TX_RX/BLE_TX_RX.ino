@@ -43,7 +43,8 @@ void setup() {
   Serial.begin(115200);
 
   // Create the BLE Device
-  BLEDevice::init("ESP32");
+  //BLEDevice::init("Breath Training Device");
+  BLEDevice::init("BreathTraining");
 
   // Create the BLE Server
   pServer = BLEDevice::createServer();
@@ -83,7 +84,7 @@ void loop() {
     // notify changed value
     if (deviceConnected) {
         adcValue = analogRead(potPin);
-        Serial.printf("*** ADC GPIO34: %x ***\n", adcValue);
+        Serial.printf("*** ADC GPIO34: %d ***\n", adcValue);
         /*
         std::ostringstream adcValue_str;
         adcValue_str << adcValue;
